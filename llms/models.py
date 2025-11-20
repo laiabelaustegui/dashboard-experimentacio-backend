@@ -2,7 +2,14 @@ from django.db import models
 from .utils import encrypt, decrypt
 
 # Create your models here.
+class Configuration(models.Model):
+    name = models.CharField(max_length=100, default="Default Configuration")
+    temperature = models.FloatField()
+    topP = models.FloatField()
+    numRuns = models.IntegerField()
 
+    def __str__(self):
+        return f"Temp: {self.temperature}, TopP: {self.topP}, Runs: {self.numRuns}"
 class LLM(models.Model):
     name = models.CharField(max_length=100)
     provider = models.CharField(max_length=100)
