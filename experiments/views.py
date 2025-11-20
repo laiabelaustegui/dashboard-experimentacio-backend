@@ -3,46 +3,47 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Experiment
 from .serializers import ExperimentSerializer
+from openai import OpenAI
 
 class CustomExperimentCreate(APIView):
     def post(self, request):
         serializer = ExperimentSerializer(data=request.data)
         if serializer.is_valid():
             experiment = serializer.save()
-            
-            # Aquí va tu lógica de ejecución automática
             prompt_template = experiment.prompt_template
             llm_model = experiment.model
             config = experiment.configuration
-            
-            # Ejemplo pseudocódigo: llamada al modelo
-            result = self.execute_model(llm_model, prompt_template, config)
-            
-            if not result:
+
+            try:
+                result = self.execute_model(llm_model, prompt_template, config)
+                if not result:
+                    raise ValueError("Model response empty or invalid.")
+                experiment.status = Experiment.Status.COMPLETED
+            except Exception as e:
                 experiment.status = Experiment.Status.FAILED
                 experiment.save()
-                return Response({"error": "Model execution failed."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
-            # Aquí puedes actualizar el experimento, crear una Run, capturar logs, etc.
-            experiment.status = Experiment.Status.COMPLETED  # Si terminó correctamente
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             experiment.save()
-            
-            return Response(ExperimentSerializer(experiment).data, status=status.HTTP_201_CREATED)
+            return Response({
+                "experiment": ExperimentSerializer(experiment).data,
+                "output": result  # aquí ves directamente el output
+            }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
     def execute_model(self, llm_model, prompt_template, config):
-        # Aquí llamas a tu modelo LLM con los datos necesarios y obtienes el resultado
-        # Por ejemplo, podrías integrar una librería externa, API, etc.
+        #Todo: Improve this to support multiple providers and configurations
         if (llm_model.provider == "OpenAI"):
-            from openai import OpenAI
             api_key = llm_model.get_api_key()
             client = OpenAI(api_key=api_key)
+            print("Sending request to OpenAI...")
+            print(f"Model: {llm_model.name}")
             response = client.responses.create(
                 model=llm_model.name,
                 input=prompt_template.user_prompt.text,
                 #instructions=prompt_template.system_prompt.text,
             )
             return response.output_text
-    
-
-
+        else:
+            raise NotImplementedError(f"Provider {llm_model.provider} not supported yet.")

@@ -12,15 +12,13 @@ class Experiment(models.Model):
     prompt_template = models.ForeignKey(PromptTemplate, on_delete=models.CASCADE)
     configuration = models.ForeignKey(Configuration, on_delete=models.CASCADE)
     model = models.ForeignKey(LLM, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     execution_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
         default=Status.RUNNING,
     )
-    class Meta:
-        unique_together = ('prompt_template', 'configuration', 'model')
     
     def __str__(self):
         return self.name
