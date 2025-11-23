@@ -5,7 +5,7 @@ class Prompt(models.Model):
     text = models.TextField()
 
     class Meta:
-        abstract = True  # ¡Esto es esencial!
+        abstract = True  
 
     def __str__(self):
         return self.text

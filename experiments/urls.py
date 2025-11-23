@@ -1,6 +1,8 @@
 from django.urls import path
-from .views import CustomExperimentCreate
+from rest_framework.routers import DefaultRouter
+from .views import ExperimentViewSet
 
-urlpatterns = [
-    path('', CustomExperimentCreate.as_view(), name='create-experiment'),
-]
+router = DefaultRouter()
+router.register(r'experiments', ExperimentViewSet, basename='experiment')
+
+urlpatterns = router.urls
