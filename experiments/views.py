@@ -41,22 +41,28 @@ class ExperimentViewSet(viewsets.ModelViewSet):
         if (llm_model.provider == "OpenAI"):
             api_key = llm_model.get_api_key()
             client = OpenAI(api_key=api_key)
-            print("Sending request to OpenAI...")
-            print(f"Model: {llm_model.name}")
             system_prompt = prompt_template.system_prompt.text
             user_prompt = prompt_template.user_prompt.text
             schema = prompt_template.system_prompt.schema
+            temperature = config.temperature
+
+            params = {
+                "model": llm_model.name,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                "response_format": schema,
+                "temperature": temperature,
+            }
+            
+            if config and config.topP is not None:
+                params["top_p"] = config.topP
+
             try:
-                response = client.chat.completions.create(
-                    model=llm_model.name,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                        ],
-                    response_format=schema,
-                )
-                response_content = response.choices[0].message.content
-                return response_content
+                response = client.chat.completions.create(**params)
+                return response.choices[0].message.content
+            
             except Exception as e:
                 raise RuntimeError(f"OpenAI API request failed: {str(e)}")
         else:
