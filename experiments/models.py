@@ -1,6 +1,6 @@
 from django.db import models
 from prompts.models import Template as PromptTemplate
-from llms.models import LLM
+from llms.models import ConfiguredModel
 # Create your models here.
 
 class Experiment(models.Model):
@@ -9,7 +9,7 @@ class Experiment(models.Model):
         COMPLETED = 'completed', 'Completed'
         FAILED = 'failed', 'Failed'
     prompt_template = models.ForeignKey(PromptTemplate, on_delete=models.CASCADE)
-    llms = models.ManyToManyField(LLM, related_name='experiments')
+    configurated_models = models.ManyToManyField(ConfiguredModel, related_name='experiments')
     name = models.CharField(max_length=100, unique=True)
     num_runs = models.PositiveIntegerField(default=1)
     execution_date = models.DateTimeField(auto_now_add=True)

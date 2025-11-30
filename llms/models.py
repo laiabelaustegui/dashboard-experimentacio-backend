@@ -16,7 +16,7 @@ class LLM(models.Model):
     API_endpoint = models.URLField(null=True, blank=True)
     API_key = models.CharField(max_length=255)
     creation_date = models.DateTimeField(auto_now_add=True)
-    configurations = models.ManyToManyField(Configuration, blank=True, related_name='llms')
+    configurations = models.ManyToManyField(Configuration, through='ConfiguredModel', related_name='llms')
 
     def save(self, *args, **kwargs):
         if not self.API_key.startswith('gAAAA'):  # evita cifrar dos veces
@@ -28,3 +28,14 @@ class LLM(models.Model):
 
     def __str__(self):
         return str(self.name)
+    
+class ConfiguredModel(models.Model):
+    llm = models.ForeignKey('LLM', on_delete=models.CASCADE)
+    configuration = models.ForeignKey('Configuration', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('llm', 'configuration')
+        ordering = ['llm__name']
+
+    def __str__(self):
+        return f"{self.llm.name} - {self.configuration.name}"
