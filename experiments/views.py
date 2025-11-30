@@ -15,11 +15,11 @@ class ExperimentViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             experiment = serializer.save()
             prompt_template = experiment.prompt_template
-            llm_model = experiment.model
-            config = experiment.configuration
+            # De momento asusmimos un solo modelo configurado por experimento
+            configurated_model = experiment.configurated_models.first()
 
             try:
-                result = self.execute_model(llm_model, prompt_template, config)
+                result = self.execute_model(configurated_model, prompt_template)
                 if not result:
                     raise ValueError("Model response empty or invalid.")
                 experiment.status = Experiment.Status.COMPLETED
@@ -36,15 +36,17 @@ class ExperimentViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Method using chat completions API
-    def execute_model(self, llm_model, prompt_template, config):
+    def execute_model(self, configurated_model, prompt_template):
         #Todo: Improve this to support multiple providers and configurations. Also implement runs tracking.
+        llm_model = configurated_model.llm
+        configuration = configurated_model.configuration
         if (llm_model.provider == "OpenAI"):
             api_key = llm_model.get_api_key()
             client = OpenAI(api_key=api_key)
             system_prompt = prompt_template.system_prompt.text
             user_prompt = prompt_template.user_prompt.text
             schema = prompt_template.system_prompt.schema
-            temperature = config.temperature
+            temperature = configuration.temperature
 
             params = {
                 "model": llm_model.name,
@@ -56,8 +58,8 @@ class ExperimentViewSet(viewsets.ModelViewSet):
                 "temperature": temperature,
             }
             
-            if config and config.topP is not None:
-                params["top_p"] = config.topP
+            if configuration and configuration.topP is not None:
+                params["top_p"] = configuration.topP
 
             try:
                 response = client.chat.completions.create(**params)
@@ -67,7 +69,8 @@ class ExperimentViewSet(viewsets.ModelViewSet):
                 raise RuntimeError(f"OpenAI API request failed: {str(e)}")
         else:
             raise NotImplementedError(f"Provider {llm_model.provider} not supported yet.")
-        
+
+     
         #  Method for responses API
         # def execute_model(self, llm_model, prompt_template, config):
         # Todo: Improve this to support multiple providers and configurations. Also implement runs tracking.

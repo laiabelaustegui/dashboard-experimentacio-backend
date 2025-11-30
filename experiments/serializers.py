@@ -7,9 +7,9 @@ class ExperimentSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'prompt_template',  # Id (pk) de PromptTemplate
-            'configuration',    # Id (pk) de Configuration
-            'model',            # Id (pk) de LLM
+            'configurated_models',  # Lista de ids (pk) de ConfiguredModel
             'name',
+            'num_runs',
             'execution_date',
             'status',
         ]
