@@ -25,7 +25,7 @@ class Experiment(models.Model):
 
 class Run(models.Model):
     experiment = models.ForeignKey('Experiment', on_delete=models.CASCADE, related_name='runs')
-    time_of_execution = models.TimeField(null=True, blank=True)
+    elapsed_time = models.FloatField(null=True, blank=True)
     apps = models.ManyToManyField('MobileApp', through='MobileAppRanked', related_name='runs')
 
     def __str__(self):
