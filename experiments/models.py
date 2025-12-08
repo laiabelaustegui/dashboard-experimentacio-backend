@@ -8,7 +8,7 @@ class Experiment(models.Model):
         RUNNING = 'running', 'Running'
         COMPLETED = 'completed', 'Completed'
         FAILED = 'failed', 'Failed'
-    prompt_template = models.ForeignKey(PromptTemplate, on_delete=models.CASCADE)
+    prompt_template = models.ForeignKey(PromptTemplate, on_delete=models.PROTECT)
     configurated_models = models.ManyToManyField(ConfiguredModel, related_name='experiments')
     name = models.CharField(max_length=100, unique=True)
     num_runs = models.PositiveIntegerField(default=1)
@@ -25,6 +25,12 @@ class Experiment(models.Model):
 
 class Run(models.Model):
     experiment = models.ForeignKey('Experiment', on_delete=models.CASCADE, related_name='runs')
+    configured_model = models.ForeignKey(  # nuevo campo
+        ConfiguredModel,
+        on_delete=models.PROTECT,  # o CASCADE, según quieras
+        related_name='runs',
+        null=False,
+    )
     elapsed_time = models.FloatField(null=True, blank=True)
     apps = models.ManyToManyField('MobileApp', through='MobileAppRanked', related_name='runs')
 

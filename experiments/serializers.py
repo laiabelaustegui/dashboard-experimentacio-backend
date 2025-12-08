@@ -23,7 +23,7 @@ class RunSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Run
-        fields = ['id', 'elapsed_time', 'mobile_app_rankings', 'ranking_criteria']
+        fields = ['id', 'elapsed_time', 'configured_model','mobile_app_rankings', 'ranking_criteria']
 
 class ExperimentSerializer(serializers.ModelSerializer):
     runs = RunSerializer(many=True, read_only=True)

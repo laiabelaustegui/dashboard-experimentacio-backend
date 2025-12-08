@@ -86,6 +86,7 @@ class ExperimentViewSet(viewsets.ModelViewSet):
 
                 run = self.create_run_with_results(
                     experiment=experiment,
+                    configured_model=configurated_model,
                     elapsed_time=elapsed,
                     output_data=data,
                 )
@@ -97,12 +98,13 @@ class ExperimentViewSet(viewsets.ModelViewSet):
         else:
             raise NotImplementedError(f"Provider {llm_model.provider} not supported yet.")
 
-    def create_run_with_results(self, experiment, elapsed_time, output_data):
+    def create_run_with_results(self, experiment, configured_model, elapsed_time, output_data):
         data = json.loads(output_data)
 
         # Create Run instance
         run = Run.objects.create(
             experiment=experiment,
+            configured_model=configured_model,
             elapsed_time=elapsed_time,
         )
 
@@ -134,30 +136,3 @@ class MobileAppViewSet(viewsets.ReadOnlyModelViewSet):
 class RankingCriteriaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RankingCriteria.objects.all()
     serializer_class = RankingCriteriaSerializer
-
-
-     
-        #  Method for responses API
-        # def execute_model(self, llm_model, prompt_template, config):
-        # Todo: Improve this to support multiple providers and configurations. Also implement runs tracking.
-        # if (llm_model.provider == "OpenAI"):
-        #     api_key = llm_model.get_api_key()
-        #     client = OpenAI(api_key=api_key)
-        #     print("Sending request to OpenAI...")
-        #     print(f"Model: {llm_model.name}")
-        #     system_prompt = prompt_template.system_prompt.text
-        #     user_prompt = prompt_template.user_prompt.text
-        #     schema = prompt_template.system_prompt.schema
-        #     try:
-        #         response = client.responses.create(
-        #             model=llm_model.name,
-        #             input=user_prompt,
-        #             instructions=system_prompt,
-        #             text={"format": schema},
-        #         )
-        #         return response.output_text
-        #     except Exception as e:
-        #         raise RuntimeError(f"OpenAI API request failed: {str(e)}")
-        # else:
-        #     raise NotImplementedError(f"Provider {llm_model.provider} not supported yet.")
-

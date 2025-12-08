@@ -21,5 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('llms.urls')),
     path('', include('experiments.urls')),
-    path('prompttemplates/', include('prompts.urls')),
+    path('prompt-templates/', include('prompts.urls')),
 ]

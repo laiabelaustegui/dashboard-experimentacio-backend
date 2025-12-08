@@ -19,4 +19,4 @@ class LLMSerializer(serializers.ModelSerializer):
 class ConfiguredModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConfiguredModel
-        fields = ['id', 'llm', 'configuration']
+        fields = ['id', 'llm', 'configuration', 'short_name']
