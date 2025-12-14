@@ -32,10 +32,11 @@ class LLM(models.Model):
 class ConfiguredModel(models.Model):
     llm = models.ForeignKey('LLM', on_delete=models.CASCADE)
     configuration = models.ForeignKey('Configuration', on_delete=models.CASCADE)
+    short_name = models.CharField(max_length=150)
 
     class Meta:
         unique_together = ('llm', 'configuration')
         ordering = ['llm__name']
 
     def __str__(self):
-        return f"{self.llm.name} - {self.configuration.name}"
+        return f"{self.short_name} ({self.llm.name} - {self.configuration.name})"
