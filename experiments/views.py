@@ -17,16 +17,15 @@ class ExperimentViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             experiment = serializer.save()
             prompt_template = experiment.prompt_template
-            # Get all configurated models associated with the experiment
-            configurated_models = experiment.configurated_models.all()
+            # Get all configured models associated with the experiment
+            configured_models = experiment.configured_models.all()
             runs = experiment.num_runs
 
-            if not configurated_models.exists():
-                return Response({"error": "No configurated models found for this experiment."}, status=status.HTTP_400_BAD_REQUEST)
-
+            if not configured_models.exists():
+                return Response({"error": "No configured models found for this experiment."}, status=status.HTTP_400_BAD_REQUEST)
             try:
-                for configurated_model in configurated_models:
-                    result = self.execute_model(experiment, configurated_model, prompt_template, runs)
+                for configured_model in configured_models:
+                    result = self.execute_model(experiment, configured_model, prompt_template, runs)
                     if not result:
                         raise ValueError("Model response empty or invalid.")
                     print(f"Model response: {result}")
@@ -43,10 +42,10 @@ class ExperimentViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Method using chat completions API
-    def execute_model(self, experiment, configurated_model, prompt_template, runs):
+    def execute_model(self, experiment, configured_model, prompt_template, runs):
         #Todo: Improve this to support multiple providers. Also implement runs tracking.
-        llm_model = configurated_model.llm
-        configuration = configurated_model.configuration
+        llm_model = configured_model.llm
+        configuration = configured_model.configuration
         if (llm_model.provider == "OpenAI"):
             api_key = llm_model.get_api_key()
             client = OpenAI(api_key=api_key)
@@ -86,7 +85,7 @@ class ExperimentViewSet(viewsets.ModelViewSet):
 
                 run = self.create_run_with_results(
                     experiment=experiment,
-                    configured_model=configurated_model,
+                    configured_model=configured_model,
                     elapsed_time=elapsed,
                     output_data=data,
                 )
