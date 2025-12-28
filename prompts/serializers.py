@@ -9,7 +9,7 @@ class SystemPromptSerializer(serializers.ModelSerializer):
 class FeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feature
-        fields = ['name', 'description', 'user_prompt']
+        fields = ['name', 'description']
 
 class UserPromptSerializer(serializers.ModelSerializer):
     features = FeatureSerializer(many=True, required=False)
