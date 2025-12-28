@@ -1,0 +1,13 @@
+# Response schema field names
+RESPONSE_FIELD_APPS = 'a'
+RESPONSE_FIELD_CRITERIA = 'c'
+RESPONSE_FIELD_CRITERIA_NAME = 'n'
+RESPONSE_FIELD_CRITERIA_DESCRIPTION = 'd'
+
+# LLM Providers
+PROVIDER_OPENAI = 'OpenAI'
+
+# API Configuration
+DEFAULT_API_TIMEOUT = 60  # seconds
+MAX_RETRIES = 3
+RETRY_DELAY = 1  # seconds
