@@ -1,5 +1,5 @@
 from django.db import models
-from prompts.models import Template as PromptTemplate
+from prompts.models import Template as PromptTemplate, Feature
 from llms.models import ConfiguredModel
 # Create your models here.
 
@@ -31,6 +31,7 @@ class Run(models.Model):
         related_name='runs',
         null=False,
     )
+    feature = models.ForeignKey(Feature, on_delete=models.PROTECT, related_name='runs')
     elapsed_time = models.FloatField(null=True, blank=True)
     apps = models.ManyToManyField('MobileApp', through='MobileAppRanked', related_name='runs')
 

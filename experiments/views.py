@@ -43,7 +43,7 @@ class ExperimentViewSet(viewsets.ModelViewSet):
 
     # Method using chat completions API
     def execute_model(self, experiment, configured_model, prompt_template, runs):
-        #Todo: Improve this to support multiple providers. Also implement runs tracking.
+        #Todo: Improve this to support multiple features
         llm_model = configured_model.llm
         configuration = configured_model.configuration
         if (llm_model.provider == "OpenAI"):

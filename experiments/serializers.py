@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from llms.models import ConfiguredModel
 from llms.serializers import ConfiguredModelSerializer
+from prompts.serializers import FeatureSerializer
 from .models import Experiment, Run, MobileApp, MobileAppRanked, RankingCriteria
 
 class MobileAppSerializer(serializers.ModelSerializer):
@@ -24,10 +24,11 @@ class RunSerializer(serializers.ModelSerializer):
     mobile_app_rankings = MobileAppRankedSerializer(many=True, read_only=True)
     ranking_criteria = RankingCriteriaSerializer(many=True, read_only=True)
     configured_model = ConfiguredModelSerializer(read_only=True)
+    feature = FeatureSerializer(read_only=True)
 
     class Meta:
         model = Run
-        fields = ['id', 'elapsed_time', 'configured_model','mobile_app_rankings', 'ranking_criteria']
+        fields = ['id', 'elapsed_time', 'configured_model','feature', 'mobile_app_rankings', 'ranking_criteria']
 
 class ExperimentSerializer(serializers.ModelSerializer):
     runs = RunSerializer(many=True, read_only=True)
