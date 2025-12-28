@@ -9,7 +9,8 @@ class SystemPromptSerializer(serializers.ModelSerializer):
 class FeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feature
-        fields = ['name', 'description']
+        fields = ['id', 'name', 'description', 'user_prompt']
+        read_only_fields = ['id', 'user_prompt']  # user_prompt is set automatically when nested
 
 class UserPromptSerializer(serializers.ModelSerializer):
     features = FeatureSerializer(many=True, required=False)
