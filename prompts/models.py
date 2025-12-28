@@ -8,13 +8,24 @@ class Prompt(models.Model):
         abstract = True  
 
     def __str__(self):
-        return self.text
+        return str(self.text)
 
 class SystemPrompt(Prompt):
     schema = models.JSONField()  # campo específico
 
 class UserPrompt(Prompt):
-    pass  # sin campos adicionales por ahora
+    k = models.IntegerField(null=True, blank=True)  # campo específico
+
+class Feature(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    user_prompt = models.ForeignKey(
+        UserPrompt, 
+        on_delete=models.CASCADE, 
+        related_name='features'
+    )
+    def __str__(self):
+        return str(self.name)
 
 class Template(models.Model):
     name = models.CharField(max_length=100)
@@ -31,4 +42,4 @@ class Template(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return str(self.name)
