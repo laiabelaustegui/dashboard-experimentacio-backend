@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import ProtectedError
 import logging
 
 from .models import Experiment, MobileApp, RankingCriteria
@@ -81,6 +82,28 @@ class ExperimentViewSet(viewsets.ModelViewSet):
         #         {"error": "Async execution not available. Please configure Celery."},
         #         status=status.HTTP_500_INTERNAL_SERVER_ERROR
         #     )
+    
+    def destroy(self, request, *args, **kwargs):
+        """
+        Override destroy to handle ProtectedError and return a friendly message
+        """
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProtectedError as e:
+            protected_objects = e.protected_objects
+            num_protected = len(protected_objects)
+            
+            return Response(
+                {
+                    'message': f'This experiment cannot be deleted because it has {num_protected} related run(s) or other dependencies. This is unusual - experiments should normally be deletable.',
+                    'error': 'Cannot delete experiment',
+                    'detail': f'Protected by {num_protected} related object(s)',
+                    'num_protected': num_protected
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class MobileAppViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = MobileApp.objects.all()
