@@ -128,6 +128,11 @@ class ExperimentExecutionService:
             
             start_time = time.time()
             
+            # Prepare top_p parameter (only include if different from default value of 1)
+            top_p = None
+            if configuration and configuration.topP != 1:
+                top_p = configuration.topP
+            
             # Execute LLM completion
             content = provider.create_completion(
                 model_name=llm_model.name,
@@ -135,7 +140,7 @@ class ExperimentExecutionService:
                 user_prompt=user_prompt,
                 schema=schema,
                 temperature=configuration.temperature,
-                top_p=configuration.topP if configuration else None
+                top_p=top_p
             )
             
             elapsed_time = time.time() - start_time
