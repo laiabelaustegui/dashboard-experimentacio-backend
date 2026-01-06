@@ -79,7 +79,7 @@ class ExperimentViewSetTests(TestCase):
             num_runs=2
         )
         
-        response = self.client.get('/experiments/')
+        response = self.client.get('/api/experiments/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
@@ -93,7 +93,7 @@ class ExperimentViewSetTests(TestCase):
         )
         experiment.configured_models.add(self.configured_model)
         
-        response = self.client.get(f'/experiments/{experiment.id}/')
+        response = self.client.get(f'/api/experiments/{experiment.id}/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], "Test Experiment")
@@ -117,7 +117,7 @@ class ExperimentViewSetTests(TestCase):
             "num_runs": 1
         }
         
-        response = self.client.post('/experiments/', data, format='json')
+        response = self.client.post('/api/experiments/', data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('experiment', response.data)
@@ -139,7 +139,7 @@ class ExperimentViewSetTests(TestCase):
             "num_runs": -1  # Invalid number
         }
         
-        response = self.client.post('/experiments/', data, format='json')
+        response = self.client.post('/api/experiments/', data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -157,7 +157,7 @@ class ExperimentViewSetTests(TestCase):
             "num_runs": 1
         }
         
-        response = self.client.post('/experiments/', data, format='json')
+        response = self.client.post('/api/experiments/', data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
@@ -177,7 +177,7 @@ class ExperimentViewSetTests(TestCase):
             "num_runs": 1
         }
         
-        response = self.client.post('/experiments/', data, format='json')
+        response = self.client.post('/api/experiments/', data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertIn('error', response.data)
@@ -190,7 +190,7 @@ class ExperimentViewSetTests(TestCase):
             num_runs=1
         )
         
-        response = self.client.delete(f'/experiments/{experiment.id}/')
+        response = self.client.delete(f'/api/experiments/{experiment.id}/')
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Experiment.objects.filter(id=experiment.id).exists())
@@ -206,7 +206,7 @@ class ExperimentViewSetTests(TestCase):
         # Create a run (which should cascade delete, but let's test the error handling)
         # Note: In the actual model, runs cascade delete, but this tests the error handler
         
-        response = self.client.delete(f'/experiments/{experiment.id}/')
+        response = self.client.delete(f'/api/experiments/{experiment.id}/')
         
         # Should succeed because runs cascade
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -227,7 +227,7 @@ class ExperimentViewSetTests(TestCase):
             elapsed_time=2.5
         )
         
-        response = self.client.get(f'/experiments/{experiment.id}/')
+        response = self.client.get(f'/api/experiments/{experiment.id}/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('runs', response.data)
@@ -243,7 +243,7 @@ class ExperimentViewSetTests(TestCase):
         )
         experiment.configured_models.add(self.configured_model)
         
-        response = self.client.get(f'/experiments/{experiment.id}/')
+        response = self.client.get(f'/api/experiments/{experiment.id}/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('configured_models_detail', response.data)
@@ -266,7 +266,7 @@ class MobileAppViewSetTests(TestCase):
         MobileApp.objects.create(name="App 1", URL="http://app1.com")
         MobileApp.objects.create(name="App 2", URL="http://app2.com")
         
-        response = self.client.get('/mobileapps/')
+        response = self.client.get('/api/mobileapps/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
@@ -275,7 +275,7 @@ class MobileAppViewSetTests(TestCase):
         """Test retrieving a single mobile app."""
         app = MobileApp.objects.create(name="TestApp", URL="http://test.com")
         
-        response = self.client.get(f'/mobileapps/{app.id}/')
+        response = self.client.get(f'/api/mobileapps/{app.id}/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], "TestApp")
@@ -286,16 +286,16 @@ class MobileAppViewSetTests(TestCase):
         data = {"name": "New App", "URL": "http://new.com"}
         
         # Try to create
-        response = self.client.post('/mobileapps/', data, format='json')
+        response = self.client.post('/api/mobileapps/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         
         # Try to update
         app = MobileApp.objects.create(name="App", URL="http://app.com")
-        response = self.client.put(f'/mobileapps/{app.id}/', data, format='json')
+        response = self.client.put(f'/api/mobileapps/{app.id}/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         
         # Try to delete
-        response = self.client.delete(f'/mobileapps/{app.id}/')
+        response = self.client.delete(f'/api/mobileapps/{app.id}/')
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
@@ -317,7 +317,7 @@ class RankingCriteriaViewSetTests(TestCase):
             description="User-friendly"
         )
         
-        response = self.client.get('/rankingcriteria/')
+        response = self.client.get('/api/rankingcriteria/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
@@ -329,7 +329,7 @@ class RankingCriteriaViewSetTests(TestCase):
             description="Data protection"
         )
         
-        response = self.client.get(f'/rankingcriteria/{criteria.id}/')
+        response = self.client.get(f'/api/rankingcriteria/{criteria.id}/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], "Security")
@@ -340,5 +340,5 @@ class RankingCriteriaViewSetTests(TestCase):
         data = {"name": "New Criteria", "description": "Description"}
         
         # Try to create
-        response = self.client.post('/rankingcriteria/', data, format='json')
+        response = self.client.post('/api/rankingcriteria/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
