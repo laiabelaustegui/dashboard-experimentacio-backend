@@ -21,3 +21,6 @@ staticfiles/
 
 # Scripts
 /scripts/
+
+# local docs
+/docs/

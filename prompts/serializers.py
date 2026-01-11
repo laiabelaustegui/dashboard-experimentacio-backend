@@ -21,10 +21,14 @@ class UserPromptSerializer(serializers.ModelSerializer):
 class TemplateSerializer(serializers.ModelSerializer):
     system_prompt = SystemPromptSerializer()
     user_prompt = UserPromptSerializer()
+    experiments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Template
-        fields = ['id', 'name', 'creation_date', 'system_prompt', 'user_prompt']
+        fields = ['id', 'name', 'creation_date', 'system_prompt', 'user_prompt', 'experiments_count']
+    
+    def get_experiments_count(self, obj):
+        return obj.experiment_set.count()
 
     def create(self, validated_data):
         system_prompt_data = validated_data.pop('system_prompt')

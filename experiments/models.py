@@ -8,7 +8,7 @@ class Experiment(models.Model):
         RUNNING = 'running', 'Running'
         COMPLETED = 'completed', 'Completed'
         FAILED = 'failed', 'Failed'
-    prompt_template = models.ForeignKey(PromptTemplate, on_delete=models.PROTECT)
+    prompt_template = models.ForeignKey(PromptTemplate, on_delete=models.CASCADE)
     configured_models = models.ManyToManyField(ConfiguredModel, related_name='experiments')
     name = models.CharField(max_length=100, unique=True)
     num_runs = models.PositiveIntegerField(default=1)
