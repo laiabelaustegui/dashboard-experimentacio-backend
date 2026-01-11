@@ -45,8 +45,8 @@ class ExperimentExecutionService:
         
         all_results = []
         
-        with transaction.atomic():
-            try:
+        try:
+            with transaction.atomic():
                 for configured_model in configured_models:
                     results = self._execute_configured_model(configured_model)
                     all_results.extend(results)
@@ -54,11 +54,12 @@ class ExperimentExecutionService:
                 self.experiment.status = Experiment.Status.COMPLETED
                 self.experiment.save()
                 
-            except Exception as e:
-                logger.error(f"Experiment {self.experiment.id} failed: {str(e)}")
-                self.experiment.status = Experiment.Status.FAILED
-                self.experiment.save()
-                raise
+        except Exception as e:
+            logger.error(f"Experiment {self.experiment.id} failed: {str(e)}")
+            # Save FAILED status outside transaction to persist even on rollback
+            self.experiment.status = Experiment.Status.FAILED
+            self.experiment.save()
+            raise
         
         return all_results
     
@@ -128,6 +129,11 @@ class ExperimentExecutionService:
             
             start_time = time.time()
             
+            # Prepare top_p parameter (only include if different from default value of 1)
+            top_p = None
+            if configuration and configuration.topP != 1:
+                top_p = configuration.topP
+            
             # Execute LLM completion
             content = provider.create_completion(
                 model_name=llm_model.name,
@@ -135,7 +141,7 @@ class ExperimentExecutionService:
                 user_prompt=user_prompt,
                 schema=schema,
                 temperature=configuration.temperature,
-                top_p=configuration.topP if configuration else None
+                top_p=top_p
             )
             
             elapsed_time = time.time() - start_time
@@ -177,6 +183,9 @@ class ExperimentExecutionService:
         """
         try:
             data = json.loads(output_data)
+            # Handle double-encoded JSON if LLM returns a JSON string
+            if isinstance(data, str):
+                data = json.loads(data)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse LLM response: {str(e)}")
             raise ValueError(f"Invalid JSON response from LLM: {str(e)}")
@@ -205,8 +214,18 @@ class ExperimentExecutionService:
             logger.warning(f"No apps found in response for run {run.id}")
             return
         
+        # Remove duplicates while preserving order (first occurrence wins)
+        seen = set()
+        unique_apps = []
+        for app_name in apps_names:
+            if app_name not in seen:
+                seen.add(app_name)
+                unique_apps.append(app_name)
+            else:
+                logger.warning(f"Duplicate app '{app_name}' found in LLM response for run {run.id}, skipping")
+        
         ranked_apps = []
-        for idx, app_name in enumerate(apps_names, start=1):
+        for idx, app_name in enumerate(unique_apps, start=1):
             mobile_app, _ = MobileApp.objects.get_or_create(name=app_name)
             ranked_apps.append(
                 MobileAppRanked(

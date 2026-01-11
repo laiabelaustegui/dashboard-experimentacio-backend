@@ -19,7 +19,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('llms.urls')),
-    path('', include('experiments.urls')),
-    path('prompt-templates/', include('prompts.urls')),
+    path('api/', include('llms.urls')),
+    path('api/', include('experiments.urls')),
+    path('api/prompt-templates/', include('prompts.urls')),
 ]
