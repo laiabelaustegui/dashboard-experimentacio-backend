@@ -9,7 +9,7 @@ This repository contains the backend for the "LLM-Powered Mobile App Recommender
 - LLM provider and configuration management
 - Prompt template management with feature-based ranking
 - RESTful API built with Django REST Framework
-- Comprehensive test coverage (>92%)
+- Comprehensive test coverage (>90%)
 
 ## Getting Started
 
