@@ -265,13 +265,17 @@ class ExperimentExecutionServiceTests(TestCase):
         
         run = Run.objects.filter(experiment=self.experiment).first()
         
-        # Should only have 3 unique apps
-        self.assertEqual(run.apps.count(), 3)
+        # Should have 4 rankings (including duplicate App1)
+        self.assertEqual(run.mobile_app_rankings.count(), 4)
+        
+        # But only 3 unique apps
+        unique_apps = MobileApp.objects.filter(rankings__run=run).distinct()
+        self.assertEqual(unique_apps.count(), 3)
         
         # Verify rankings are sequential
         rankings = run.mobile_app_rankings.all()
         ranks = [r.rank for r in rankings]
-        self.assertEqual(ranks, [1, 2, 3])
+        self.assertEqual(ranks, [1, 2, 3, 4])
 
     @patch('experiments.services.LLMProviderFactory.create_provider')
     def test_create_run_with_empty_apps_list(self, mock_create_provider):
