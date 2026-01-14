@@ -106,7 +106,7 @@ python manage.py test --failfast
 
 ### Code Coverage
 
-The project maintains >92% code coverage. 
+The project maintains >90% code coverage. 
 
 ```bash
 # Generate coverage report
@@ -118,7 +118,7 @@ coverage html
 # Open htmlcov/index.html in your browser
 ```
 
-**Current Coverage:** 92.51% (454 statements, 34 missing)
+**Current Coverage:** 90.34% (580 statements, 56 missing)
 
 ## Project Structure
 

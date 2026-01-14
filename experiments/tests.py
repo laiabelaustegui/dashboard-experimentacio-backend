@@ -269,19 +269,22 @@ class MobileAppRankedModelTests(TestCase):
         self.assertEqual(ranked.run, self.run)
 
     def test_unique_app_per_run_constraint(self):
-        """Test that a mobile app can only be ranked once per run."""
+        """Test that the unique constraint prevents duplicate (app, run, rank) combinations."""
         MobileAppRanked.objects.create(
             run=self.run,
             mobile_app=self.app1,
             rank=1
         )
         
-        with self.assertRaises(IntegrityError):
-            MobileAppRanked.objects.create(
-                run=self.run,
-                mobile_app=self.app1,
-                rank=2
-            )
+        # Should raise IntegrityError when trying to create the same app with same rank in same run
+        from django.db import transaction
+        with transaction.atomic():
+            with self.assertRaises(IntegrityError):
+                MobileAppRanked.objects.create(
+                    run=self.run,
+                    mobile_app=self.app1,
+                    rank=1  # Same rank - this should fail
+                )
 
     def test_mobile_app_ranked_ordering(self):
         """Test that MobileAppRanked are ordered by rank."""

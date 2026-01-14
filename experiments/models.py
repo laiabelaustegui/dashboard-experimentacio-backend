@@ -1,6 +1,7 @@
 from django.db import models
 from prompts.models import Template as PromptTemplate, Feature
 from llms.models import ConfiguredModel
+from .experiment_states import ExperimentStateContext
 # Create your models here.
 
 class Experiment(models.Model):
@@ -21,6 +22,37 @@ class Experiment(models.Model):
     
     def __str__(self):
         return str(self.name)
+    
+    def get_state_context(self) -> ExperimentStateContext:
+        """Get or create the state context for this experiment."""
+        if not hasattr(self, '_state_context') or self._state_context is None:
+            self._state_context = ExperimentStateContext(self)
+        return self._state_context
+    
+    def can_execute(self) -> bool:
+        """Check if the experiment can be executed."""
+        return self.get_state_context().can_execute()
+    
+    def mark_as_running(self, save: bool = True) -> bool:
+        """Transition to running state. Returns True if successful."""
+        success = self.get_state_context().transition_to_running()
+        if success and save:
+            self.save(update_fields=['status'])
+        return success
+    
+    def mark_as_completed(self, save: bool = True) -> bool:
+        """Transition to completed state. Returns True if successful."""
+        success = self.get_state_context().transition_to_completed()
+        if success and save:
+            self.save(update_fields=['status'])
+        return success
+    
+    def mark_as_failed(self, save: bool = True) -> bool:
+        """Transition to failed state. Returns True if successful."""
+        success = self.get_state_context().transition_to_failed()
+        if success and save:
+            self.save(update_fields=['status'])
+        return success
 
 
 class Run(models.Model):
@@ -65,7 +97,7 @@ class MobileAppRanked(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['mobile_app', 'run'], name='unique_app_per_run'),
+            models.UniqueConstraint(fields=['mobile_app', 'run', 'rank'], name='unique_app_rank_per_run'),
         ]
         ordering = ['rank']
 

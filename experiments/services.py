@@ -51,14 +51,14 @@ class ExperimentExecutionService:
                     results = self._execute_configured_model(configured_model)
                     all_results.extend(results)
                 
-                self.experiment.status = Experiment.Status.COMPLETED
-                self.experiment.save()
+                # Use state pattern to transition to completed
+                if not self.experiment.mark_as_completed(save=True):
+                    raise RuntimeError("Cannot mark experiment as completed in current state")
                 
         except Exception as e:
             logger.error(f"Experiment {self.experiment.id} failed: {str(e)}")
             # Save FAILED status outside transaction to persist even on rollback
-            self.experiment.status = Experiment.Status.FAILED
-            self.experiment.save()
+            self.experiment.mark_as_failed(save=True)
             raise
         
         return all_results
@@ -214,18 +214,8 @@ class ExperimentExecutionService:
             logger.warning(f"No apps found in response for run {run.id}")
             return
         
-        # Remove duplicates while preserving order (first occurrence wins)
-        seen = set()
-        unique_apps = []
-        for app_name in apps_names:
-            if app_name not in seen:
-                seen.add(app_name)
-                unique_apps.append(app_name)
-            else:
-                logger.warning(f"Duplicate app '{app_name}' found in LLM response for run {run.id}, skipping")
-        
         ranked_apps = []
-        for idx, app_name in enumerate(unique_apps, start=1):
+        for idx, app_name in enumerate(apps_names, start=1):
             mobile_app, _ = MobileApp.objects.get_or_create(name=app_name)
             ranked_apps.append(
                 MobileAppRanked(
