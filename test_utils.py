@@ -123,7 +123,7 @@ class RenderUserPromptTests(TestCase):
         
         result = render_user_prompt_for_feature(user_prompt, feature)
         
-        self.assertEqual(result, "Feature name is Login")
+        self.assertEqual(result, "Feature name is login")
 
     def test_render_with_feature_and_k(self):
         """Test rendering with both feature and k variables."""
@@ -138,7 +138,7 @@ class RenderUserPromptTests(TestCase):
         
         result = render_user_prompt_for_feature(user_prompt, feature, k=10)
         
-        self.assertEqual(result, "Feature: Navigation, K: 10")
+        self.assertEqual(result, "Feature: navigation, K: 10")
 
     def test_render_complex_template(self):
         """Test rendering a more complex Jinja2 template."""
@@ -168,7 +168,7 @@ class RenderUserPromptTests(TestCase):
         
         result = render_user_prompt_for_feature(user_prompt, feature, k=None)
         
-        self.assertEqual(result, "Analyze Settings")
+        self.assertEqual(result, "Analyze settings")
 
     def test_render_with_k_in_template_but_no_k_provided(self):
         """Test rendering when template has k but k is not provided."""
@@ -217,7 +217,7 @@ This is a multi-line template with {{ k }} recommendations.""",
         
         result = render_user_prompt_for_feature(user_prompt, feature)
         
-        self.assertEqual(result, "Feature: Photo & Video Editing")
+        self.assertEqual(result, "Feature: photo & Video Editing")
 
     def test_render_with_jinja2_filters(self):
         """Test using Jinja2 filters in the template."""

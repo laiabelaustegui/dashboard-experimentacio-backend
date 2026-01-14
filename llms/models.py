@@ -14,7 +14,7 @@ class LLM(models.Model):
     name = models.CharField(max_length=100)
     provider = models.CharField(max_length=100)
     API_endpoint = models.URLField(null=True, blank=True)
-    API_key = models.CharField(max_length=255)
+    API_key = models.TextField()  # TextField para soportar API keys cifradas de cualquier longitud
     creation_date = models.DateTimeField(auto_now_add=True)
     configurations = models.ManyToManyField(Configuration, through='ConfiguredModel', related_name='llms')
 
