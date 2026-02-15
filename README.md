@@ -237,7 +237,7 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 
 - **Framework**: Django 5.2.7
 - **API**: Django REST Framework 3.16.1
-- **Database**: SQLite (development)
+- **Database**: PostgreSQL
 - **Task Queue**: Celery 5.6.0 (configured but not in use)
 - **LLM Integration**: OpenAI SDK 2.6.1
 - **Testing**: Django TestCase, Coverage.py 7.6.10
